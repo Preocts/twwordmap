@@ -8,7 +8,7 @@ Created by Preocts
 
 ---
 
-Requirements:
+### Requirements:
 
 - [Python 3.8.1](https://www.python.org/)
 - [python-twitter](https://python-twitter.readthedocs.io/en/latest/installation.html)
@@ -16,6 +16,6 @@ Requirements:
 
 ---
 
-Documentation:
+### Status:
 
-- None
+- Early stages
