@@ -4,7 +4,7 @@ A side-project for the 100 Days of Code challenge.
 
 Created by Preocts
 
-[preocts@preocts.com](mailto:preocts@preocts.com) | Preocts#8196 Discord | [Github](https://github.com/Preocts)
+Preocts#8196 Discord | [Github](https://github.com/Preocts)
 
 ---
 
