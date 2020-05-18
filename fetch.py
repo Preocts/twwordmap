@@ -9,15 +9,9 @@ Coded by: Preocts
 
 Uses the python-twitter library to authenticate with Twitter's API via
 app authentication and performs an advanced search for a given searchTerm.
-
-The results are returned in JSON form and stored in a file for use later.
 """
-import os
 import twitter
-import json
-import time
 import logging
-from dotenv import load_dotenv
 
 logger = logging.getLogger('default')
 logger.setLevel(logging.DEBUG)
@@ -56,12 +50,17 @@ def fetch(api, searchTerm, since_date, count=10, id=0):
     if count > 100:
         count = 100
         logger.warning('Max count return for fetch() is 100')
-    return api.GetSearch(term=searchTerm,
-                         max_id=id,
-                         count=count,
-                         result_type='recent',
-                         include_entities=False,
-                         return_json=True)
+    try:
+        return api.GetSearch(term=searchTerm,
+                             max_id=id,
+                             count=count,
+                             result_type='recent',
+                             include_entities=False,
+                             since=since_date,
+                             return_json=True)
+    except twitter.error.TwitterError as err:
+        logger.critical(f'{err}')
+        return "err"
 
 
 def connect(apiCode, apiSecret, accessCode, accessSecret, debug=False):
@@ -86,6 +85,7 @@ def connect(apiCode, apiSecret, accessCode, accessSecret, debug=False):
                        access_token_key=accessCode,
                        access_token_secret=accessSecret,
                        application_only_auth=True,
+                       sleep_on_rate_limit=True,
                        debugHTTP=debug)
 
 
@@ -128,6 +128,11 @@ def stripRetweets(statuses):
 
 
 def main():
+    # Imports only used if run a __main__
+    import os
+    import time
+    from dotenv import load_dotenv
+
     # Performance measuring
     tic = time.perf_counter()
 

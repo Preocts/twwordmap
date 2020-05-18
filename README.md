@@ -18,4 +18,19 @@ Created by Preocts
 
 ### Status:
 
-- Early stages
+- Early stages - no version or release
+
+**fetch.py**
+
+A collection of functions to connect and auth to Twitter's API as an application and pull results from the search end-point.
+
+**collect.py**
+
+Core script - Define a search string, a since_date, and let it go. Will pull the most recent tweets, moving backward through the timeline, until it runs out of results. 7 day limit on the "since_date" and throttled to 450 requests per fifteen minutes.
+
+
+**eggTimer.py**
+
+A side-project within a side-project! A class definition that starts a perf_counter() timer, allows marks to be made with descriptions, and stores the results in a dictionary.
+
+Working on this but you should be able to create easy, detailed, time measurements with it.
