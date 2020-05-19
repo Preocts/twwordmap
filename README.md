@@ -58,14 +58,14 @@ $ python collect.py #100DaysOfCode 2020-05-18 --log info
 File output is placed in the working directory. Two files are generated per execution, a JSON and a text file.  Each are named in the date/time format: *YYYY.MM.DD.HH.MM.SS-Search*.
 
 JSON File output format:
-```json
+```
 {
     "collect": [
         [Snowflake(int), "Text of tweet"(str)],
         [Snowflake(int), "Text of tweet"(str)]
     ],
-    "total": (int),
-    "unique" (int)
+    "Total": (int),
+    "Unique" (int)
 }
 ```
 
