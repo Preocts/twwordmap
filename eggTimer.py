@@ -6,6 +6,17 @@ Built during 100DaysofCode.
 Coded by: Preocts
     Discord: Preocts#8196
     GitHub: https://github.com/Preocts
+
+Usage Example:
+
+    # Creates a timer
+    timer = eggTimer()
+    # Some setup code here
+    timer.start("Main Process")  # Starts timer (tic)
+    for i in iterableList:
+        # Do some things
+
+
 """
 import time
 
@@ -40,7 +51,8 @@ class eggTimer():
         self.desc = None
         self.tic = None
         self.toc = None
-        self.marks = {}
+        self.tac = None
+        self.marks = []
         if desc is not None:
             self.start(desc)
         return
@@ -73,8 +85,8 @@ class eggTimer():
         """
         if self.desc is not None:
             raise eggTimer_Exception('eggTimer can only be started once')
-        self.desc = desc
         self.tic = time.perf_counter()
+        self.desc = desc
         return
 
     def stop(self):
@@ -89,23 +101,75 @@ class eggTimer():
         self.toc = time.perf_counter()
         return
 
-    def mark(self, desc):
+    def recmark(self, desc):
         """
         Create a mark with description while continuing to run timer
 
+        These are stored in the class instance, so don't use these on heavily
+        looped processes unless you are aware they are retained in state. Marks
+        are exported to file with .dumpTimes()
+
         Args:
             desc(str): Description of the mark (used in formatted output)
+
+        Returns:
+            (int) diff between 'now' and last mark/start
 
         Raises:
             eggTimer_Exception
         """
         if self.tic is None:
             raise eggTimer_Exception('Use .start() before adding a mark')
-        # Auto incriment postfix if desc has been used
-        if desc in self.marks.keys():
-            n = 0
-            while desc + str(n) in self.marks.keys():
-                n += 1
-            desc = desc + str(n)
-        self.marks[desc] = time.perf_counter()
-        return
+        self.tac = time.perf_counter()
+        self.marks.append((desc, self.tac))
+
+        if len(self.marks) == 1:
+            return self.marks[-1][1] - self.tic
+        return self.marks[-1][1] - self.marks[-2][1]
+
+    def mark(self):
+        """
+        Returns the diff between 'now' and the prior mark
+
+        Does not store this value in state. Safe for heavy loops or long runs
+
+        Raises:
+            eggTimer_Exception
+        """
+        if self.tic is None:
+            raise eggTimer_Exception('Use .start() before asking for a tac')
+        nowtac = time.perf_counter()
+        oldtac = self.tac
+        self.tac = nowtac
+        if oldtac is None:
+            return self.tac - self.tic
+        return nowtac - oldtac
+
+    def dumpTimes(self, filename, mode='w'):
+        """
+        Dump all stored times and descriptions to a text file
+
+        Args:
+            filename(str): path and filename to create text file
+            mode(str)(optional): Python's file mode. Default: w
+
+        Raises:
+            eggTimer_Exception
+        """
+        if self.tic is None:
+            raise eggTimer_Exception('Use .start() before dumping times')
+
+        try:
+            with open(filename, mode) as file:
+                file.write(f'Main eggTimer: {self.desc}\n')
+                file.write(f'Start: {self.tic}\n')
+                if self.toc is not None:
+                    file.write(f'Stop : {self.toc}\n')
+                    file.write(f'Total: {self.toc - self.tic}\n')
+                if len(self.marks):
+                    file.write('\n=-=-=-=-=-= Marks =-=-=-=-=\n\n')
+                    for desc, tic in self.marks:
+                        file.write(f'Mark desc: {desc}\n')
+                        file.write(f'     tic: {tic}\n')
+        except OSError as err:
+            raise eggTimer_Exception(f'eggTimer.dumpTimes(): {err}')

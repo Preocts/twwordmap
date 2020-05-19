@@ -110,7 +110,7 @@ def stripRetweets(statuses):
     """
     Create a dictionary that contains only unique statuses
 
-    Removes any status that starts with "RT"
+    Removes any status that starts with "RT".
 
     Args:
         statuses (dict) : A dict of Twitter statuses from filterResult()
@@ -155,7 +155,7 @@ def main():
         exit()
     logger.info('Connection Complete')
 
-    raw_results = fetch(twapi, '#100DaysofCode', '2020-05-17', 100, 0)
+    raw_results = fetch(twapi, '#100DaysofCode', '2020-05-17', 1, 0)
     clean_results = filterResult(raw_results['statuses'])
     unique_results = stripRetweets(clean_results)
     retweet_count = len(clean_results) - len(unique_results)
