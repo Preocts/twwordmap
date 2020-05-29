@@ -13,7 +13,6 @@ collection of statuses.
 Store the results in a flat-file as JSON.
 """
 import fetch
-import eggTimer
 import logging
 import os
 import dotenv
@@ -23,7 +22,6 @@ import argparse
 
 logger = logging.getLogger('default')
 logger.setLevel(logging.DEBUG)
-timer = eggTimer.eggTimer('collect.py')  # Start timer for performance tracking
 
 
 def search(searchTerm, sdate):
@@ -101,11 +99,10 @@ def search(searchTerm, sdate):
                     f'Total statuses: {totals[0]} | '
                     f'Total uniques: {totals[1]}')
 
-        logger.debug(f'Segment time: {timer.mark()}')
         logger.debug(f'Rate Limit: {twapi.CheckRateLimit(endpoint)}')
         if twapi.CheckRateLimit(endpoint).remaining == 0:
             logger.warning('Rate Limit Reached! Program will pause and start '
-                           'once the rate limit resets (>15min)')
+                           'once the rate limit resets (<15min)')
 
     # Add some stats to our collection
     collection["Total"] = totals[0]
@@ -117,12 +114,7 @@ def search(searchTerm, sdate):
         outfile.write(json.dumps(collection))
         # outfile.write(str(collection))
 
-    timer.stop()
-    logger.debug(f'Start tic: {timer.tic}')
-    logger.debug(f'End toc  : {timer.toc}')
-    logger.debug(f'Run time : {timer.toc - timer.tic}')
     logger.info('End of Line.')
-    timer.dumpTimes(filename + '.txt', 'w')
 
 
 if __name__ == '__main__':
