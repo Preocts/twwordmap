@@ -1,0 +1,2 @@
+secretbox==2.1.0
+python-twitter==3.5
