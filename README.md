@@ -14,4 +14,4 @@ TW_CONSUMER_SECRET=[client secret]
 
 A 'TW_BEARER_TOKEN' will be created in the environment on successful authentication. This key should be stored securely and loaded to the environment on subsequent calls. When this token already exists, the request for a bearer token can be skipped.
 
-Additional called to the authentication process **will not** result in a new bearer token if the same consumer credentials are provided. The former bearer token must be invalided to obtain a new one.
+Additional calls to the authentication process **will not** result in a new bearer token if the same consumer credentials are provided. The former bearer token must be invalided to obtain a new one.
