@@ -17,7 +17,7 @@ class AuthClient(Http):
         TW_CONSUMER_KEY
         TW_CONSUMER_SECRET
 
-    A 'TW_BEARER_TOKEN' will wil be created in the environment on succesful
+    A 'TW_BEARER_TOKEN' will be created in the environment on successful
     authentication. This key should be stored securely and loaded to the
     environment on subsequent calls. When this token already exists, the
     request for a bearer token can be skipped.
