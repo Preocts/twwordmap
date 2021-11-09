@@ -63,41 +63,32 @@ class Tweet:
         tweet.source = obj.get("source")
         tweet.errors = obj.get("errors")
 
-        tweet.referenced_tweets = [
-            ReferencedTweets.build_obj(rt) for rt in obj.get("referenced_tweets", [])
-        ]
+        # TODO: We can protocol this out better
+        # Process nested arrays
+        nested_array: Dict[str, Any] = {
+            "referenced_tweets": ReferencedTweets,
+        }
+        for key, model in nested_array.items():
+            content = obj.get(key, [])
+            value = [model.build_obj(x) for x in content] or None
+            setattr(tweet, key, value)
 
-        attachments = obj.get("attachments")
-        tweet.attachments = Attachments.build_obj(attachments) if attachments else None
-
-        geo = obj.get("geo")
-        tweet.geo = Geo.build_obj(geo) if geo else None
-
-        ctxa = obj.get("conext_annotations")
-        tweet.context_annotations = ContextAnnotations.build_obj(ctxa) if ctxa else None
-
-        ent = obj.get("ent")
-        tweet.entities = Entities.build_obj(ent) if ent else None
-
-        withheld = obj.get("withheld")
-        tweet.withheld = Withheld.build_obj(withheld) if withheld else None
-
-        pmet = obj.get("public_metrics")
-        tweet.public_metrics = PublicMetrics.build_obj(pmet) if pmet else None
-
-        npmet = obj.get("non_public_metrics")
-        tweet.non_public_metrics = NonPublicMetrics.build_obj(npmet) if npmet else None
-
-        omet = obj.get("organic_metrics")
-        tweet.organic_metrics = OrganicMetrics.build_obj(omet) if omet else None
-
-        promet = obj.get("promoted_metrics")
-        tweet.promoted_metrics = PromotedMetrics.build_obj(promet) if promet else None
-
-        includes = obj.get("includes")
-        tweet.includes = Includes.build_obj(includes) if includes else None
-
-        meta = obj.get("meta")
-        tweet.meta = Meta.build_obj(meta) if meta else None
+        # Process Nested Objects
+        nested_obj: Dict[str, Any] = {
+            "attachments": Attachments,
+            "geo": Geo,
+            "context_annotations": ContextAnnotations,
+            "entities": Entities,
+            "withheld": Withheld,
+            "public_metrics": PublicMetrics,
+            "non_public_metrics": NonPublicMetrics,
+            "organic_metrics": OrganicMetrics,
+            "promoted_metrics": PromotedMetrics,
+            "includes": Includes,
+            "meta": Meta,
+        }
+        for key, model in nested_obj.items():
+            content = obj.get(key)
+            setattr(tweet, key, model.build_obj(content) if content else None)
 
         return tweet
