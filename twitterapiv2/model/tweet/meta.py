@@ -12,8 +12,8 @@ class Meta:
     def build_obj(cls, obj: Dict[str, Any]) -> "Meta":
         """Build object"""
         new = cls()
-        new.count = obj["count"]
-        new.newest_id = obj["newest_id"]
-        new.oldest_id = obj["oldest_id"]
+        new.count = obj.get("count", 0)
+        new.newest_id = obj.get("newest_id", 0)
+        new.oldest_id = obj.get("oldest_id", 0)
         new.next_token = obj.get("next_token", "")
         return new
