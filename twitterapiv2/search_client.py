@@ -7,6 +7,7 @@ from typing import Optional
 
 from twitterapiv2.http import Http
 from twitterapiv2.model.recent.recent import Recent
+from twitterapiv2.model.responseheader import ResponseHeader
 
 _BEARER_TOKEN = "TW_BEARER_TOKEN"
 
@@ -18,6 +19,23 @@ class SearchClient(Http):
     def __init__(self, num_pools: int = 10) -> None:
         super().__init__(num_pools=num_pools)
         self.log = logging.getLogger(__name__)
+        self._last_response: Optional[ResponseHeader] = None
+
+    @property
+    def limit_remaining(self) -> int:
+        """Number of calls remaining before next limit reset"""
+        if self._last_response is None:
+            return 1
+        else:
+            return int(self._last_response.x_rate_limit_remaining)
+
+    @property
+    def limit_reset(self) -> datetime:
+        """Datetime of next limit reset"""
+        if self._last_response is None:
+            return datetime.now()
+        else:
+            return datetime.fromtimestamp(int(self._last_response.x_rate_limit_reset))
 
     def _headers(self) -> Dict[str, str]:
         """Build headers with TW_BEARER_TOKEN from environ"""
@@ -56,6 +74,7 @@ class SearchClient(Http):
         fields.update({"user.fields": user_fields} if user_fields else {})
 
         result = self.http.request("GET", self.RECENT, fields, self._headers())
+        self._last_response = ResponseHeader.build_from(result)
 
         return Recent.build_obj(self.data2dict(result.data))
 
@@ -72,5 +91,5 @@ if __name__ == "__main__":
 
     auth.set_bearer_token()
     result = client.search_recent("#NaNoWriMo", max_results=10)
-    for tweet in result.data:
-        print(tweet.text)
+    print(client.limit_remaining)
+    print(client.limit_reset)
