@@ -2,11 +2,11 @@ from typing import Any
 from typing import Dict
 from typing import List
 
-from twitterapiv2.model.tweet.annotations import Annotations
-from twitterapiv2.model.tweet.cashtags import Cashtags
-from twitterapiv2.model.tweet.hashtags import Hashtags
-from twitterapiv2.model.tweet.mentions import Mentions
-from twitterapiv2.model.tweet.urls import Urls
+from twitterapiv2.model.recent.annotations import Annotations
+from twitterapiv2.model.recent.cashtags import Cashtags
+from twitterapiv2.model.recent.hashtags import Hashtags
+from twitterapiv2.model.recent.mentions import Mentions
+from twitterapiv2.model.recent.urls import Urls
 
 
 class Entities:

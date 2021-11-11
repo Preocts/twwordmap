@@ -2,8 +2,8 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-from twitterapiv2.model.tweet.domain import Domain
-from twitterapiv2.model.tweet.entity import Entity
+from twitterapiv2.model.recent.domain import Domain
+from twitterapiv2.model.recent.entity import Entity
 
 
 class ContextAnnotations:

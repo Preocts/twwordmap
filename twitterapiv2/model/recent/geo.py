@@ -2,7 +2,7 @@ from typing import Any
 from typing import Dict
 from typing import Optional
 
-from twitterapiv2.model.tweet.coordinates import Coordinates
+from twitterapiv2.model.recent.coordinates import Coordinates
 
 
 class Geo:

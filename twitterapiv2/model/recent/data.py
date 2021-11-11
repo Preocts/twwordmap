@@ -3,18 +3,18 @@ from typing import Dict
 from typing import List
 from typing import Optional
 
-from twitterapiv2.model.tweet.attachments import Attachments
-from twitterapiv2.model.tweet.context_annotations import ContextAnnotations
-from twitterapiv2.model.tweet.entities import Entities
-from twitterapiv2.model.tweet.geo import Geo
-from twitterapiv2.model.tweet.includes import Includes
-from twitterapiv2.model.tweet.meta import Meta
-from twitterapiv2.model.tweet.non_public_metrics import NonPublicMetrics
-from twitterapiv2.model.tweet.organic_metrics import OrganicMetrics
-from twitterapiv2.model.tweet.promoted_metrics import PromotedMetrics
-from twitterapiv2.model.tweet.public_metrics import PublicMetrics
-from twitterapiv2.model.tweet.referenced_tweets import ReferencedTweets
-from twitterapiv2.model.tweet.withheld import Withheld
+from twitterapiv2.model.recent.attachments import Attachments
+from twitterapiv2.model.recent.context_annotations import ContextAnnotations
+from twitterapiv2.model.recent.entities import Entities
+from twitterapiv2.model.recent.geo import Geo
+from twitterapiv2.model.recent.includes import Includes
+from twitterapiv2.model.recent.meta import Meta
+from twitterapiv2.model.recent.non_public_metrics import NonPublicMetrics
+from twitterapiv2.model.recent.organic_metrics import OrganicMetrics
+from twitterapiv2.model.recent.promoted_metrics import PromotedMetrics
+from twitterapiv2.model.recent.public_metrics import PublicMetrics
+from twitterapiv2.model.recent.referenced_tweets import ReferencedTweets
+from twitterapiv2.model.recent.withheld import Withheld
 
 
 class Data:

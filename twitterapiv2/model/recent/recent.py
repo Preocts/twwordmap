@@ -5,18 +5,18 @@ from typing import Any
 from typing import Dict
 from typing import List
 
-from twitterapiv2.model.tweet.data import Data
-from twitterapiv2.model.tweet.meta import Meta
+from twitterapiv2.model.recent.data import Data
+from twitterapiv2.model.recent.meta import Meta
 
 
-class Tweet:
-    """Defines an empty Tweet object"""
+class Recent:
+    """Defines an empty search/recent object"""
 
     data: List[Data]
     meta: Meta
 
     @classmethod
-    def build_obj(cls, obj: Dict[str, Any]) -> "Tweet":
+    def build_obj(cls, obj: Dict[str, Any]) -> "Recent":
         """Builds object from dictionary"""
         tweet = cls()
 
