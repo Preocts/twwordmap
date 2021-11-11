@@ -1,7 +1,6 @@
 import logging
 import os
 from datetime import datetime
-from typing import Any
 from typing import Dict
 from typing import Optional
 
@@ -59,21 +58,24 @@ class SearchClient(Http):
         user_fields: Optional[str] = None,
     ) -> Recent:
         """Search tweets from up to the last seven days matching parameters"""
-        fields: Dict[str, Any] = {"query": query}
-        fields.update({"max_results": max_results} if max_results else {})
-        fields.update({"next_token": next_token} if next_token else {})
-        fields.update({"start_time": str(start_time)} if start_time else {})
-        fields.update({"end_time": str(end_time)} if end_time else {})
-        fields.update({"since_id": since_id} if since_id else {})
-        fields.update({"until_id": until_id} if until_id else {})
-        fields.update({"expansions": expansions} if expansions else {})
-        fields.update({"media.fields": media_fields} if media_fields else {})
-        fields.update({"place.fields": place_fields} if place_fields else {})
-        fields.update({"poll.fields": poll_fields} if poll_fields else {})
-        fields.update({"tweet.fields": tweet_fields} if tweet_fields else {})
-        fields.update({"user.fields": user_fields} if user_fields else {})
+        fields = {
+            "query": query,
+            "max_results": max_results,
+            "next_token": next_token,
+            "start_time": str(start_time),
+            "end_time": str(end_time),
+            "since_id": since_id,
+            "until_id": until_id,
+            "expansions": expansions,
+            "media.fields": media_fields,
+            "place.fields": place_fields,
+            "poll.fields": poll_fields,
+            "tweet.fields": tweet_fields,
+            "user.fields": user_fields,
+        }
+        clean_fields = {key: value for key, value in fields.items() if value}
 
-        result = self.http.request("GET", self.RECENT, fields, self._headers())
+        result = self.http.request("GET", self.RECENT, clean_fields, self._headers())
         self._last_response = ResponseHeader.build_from(result)
 
         return Recent.build_obj(self.data2dict(result.data))
