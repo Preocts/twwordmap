@@ -8,7 +8,6 @@ from twitterapiv2.model.recent.context_annotations import ContextAnnotations
 from twitterapiv2.model.recent.entities import Entities
 from twitterapiv2.model.recent.geo import Geo
 from twitterapiv2.model.recent.includes import Includes
-from twitterapiv2.model.recent.meta import Meta
 from twitterapiv2.model.recent.non_public_metrics import NonPublicMetrics
 from twitterapiv2.model.recent.organic_metrics import OrganicMetrics
 from twitterapiv2.model.recent.promoted_metrics import PromotedMetrics
@@ -41,8 +40,6 @@ class Data:
     reply_settings: Optional[str]
     source: Optional[str]
     includes: Optional[Includes]
-    meta: Optional[Meta]
-    errors: Optional[Dict[str, Any]]
 
     @classmethod
     def build_obj(cls, obj: Dict[str, Any]) -> "Data":
@@ -58,7 +55,6 @@ class Data:
         tweet.lang = obj.get("lang")
         tweet.reply_settings = obj.get("replay_settings")
         tweet.source = obj.get("source")
-        tweet.errors = obj.get("errors")
 
         # Process nested arrays
         nested_array: Dict[str, Any] = {
@@ -79,7 +75,6 @@ class Data:
             "organic_metrics": OrganicMetrics,
             "promoted_metrics": PromotedMetrics,
             "includes": Includes,
-            "meta": Meta,
         }
         for key, model in nested_obj.items():
             content = obj.get(key)

@@ -4,6 +4,7 @@ https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/ge
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
 
 from twitterapiv2.model.recent.data import Data
 from twitterapiv2.model.recent.meta import Meta
@@ -14,26 +15,13 @@ class Recent:
 
     data: List[Data]
     meta: Meta
+    errors: Optional[Dict[str, Any]]
 
     @classmethod
     def build_obj(cls, obj: Dict[str, Any]) -> "Recent":
         """Builds object from dictionary"""
-        tweet = cls()
-
-        # TODO: We can protocol this out better
-        # Process nested arrays
-        nested_array: Dict[str, Any] = {
-            "data": Data,
-        }
-        for key, model in nested_array.items():
-            setattr(tweet, key, [model.build_obj(x) for x in obj.get(key, [])])
-
-        # Process Nested Objects
-        nested_obj: Dict[str, Any] = {
-            "meta": Meta,
-        }
-        for key, model in nested_obj.items():
-            content = obj.get(key)
-            setattr(tweet, key, model.build_obj(content) if content else None)
-
-        return tweet
+        new = cls()
+        new.errors = obj.get("errors")
+        new.data = [Data.build_obj(x) for x in obj.get("data", [])]
+        new.meta = Meta.build_obj(obj.get("meta", {}))
+        return new
