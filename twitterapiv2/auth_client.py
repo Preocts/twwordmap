@@ -62,7 +62,7 @@ class AuthClient(Http):
             fields=fields,
             headers=headers,
         )
-        result = super().data2dict(resp.data)
+        result = super()._data2dict(resp.data)
 
         if result.get("token_type", "") != "bearer":
             self.log.error(result)
