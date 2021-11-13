@@ -41,14 +41,14 @@ class SearchClient(Http):
     def start_time(self, start: Union[str, datetime, None]) -> "SearchClient":
         """Define start_time of query. YYYY-MM-DDTHH:mm:ssZ (ISO 8601/RFC 3339)"""
         if isinstance(start, datetime):
-            start = self._toISO8601(start)
+            start = self._to_ISO8601(start)
         self._fields["start_time"] = start if start else None
         return self._new_client()
 
     def end_time(self, end: Union[str, datetime, None]) -> "SearchClient":
         """Define end_time of query. YYYY-MM-DDTHH:mm:ssZ (ISO 8601/RFC 3339)"""
         if isinstance(end, datetime):
-            end = self._toISO8601(end)
+            end = self._to_ISO8601(end)
         self._fields["end_time"] = end if end else None
         return self._new_client()
 
@@ -156,7 +156,7 @@ class SearchClient(Http):
         return new_client
 
     @staticmethod
-    def _toISO8601(dt: datetime) -> str:
+    def _to_ISO8601(dt: datetime) -> str:
         """Convert datetime object to ISO 8601 standard UTC string"""
         return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
