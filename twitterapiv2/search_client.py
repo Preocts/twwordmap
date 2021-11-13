@@ -1,4 +1,3 @@
-import logging
 import os
 from datetime import datetime
 from typing import Any
@@ -159,33 +158,3 @@ class SearchClient(Http):
     def _to_ISO8601(dt: datetime) -> str:
         """Convert datetime object to ISO 8601 standard UTC string"""
         return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-if __name__ == "__main__":
-    from datetime import timedelta
-    from twitterapiv2.auth_client import AuthClient
-    from secretbox import SecretBox
-
-    SecretBox(auto_load=True)
-    logging.basicConfig(level="DEBUG")
-
-    auth = AuthClient()
-    auth.set_bearer_token()
-
-    nanotag = (
-        SearchClient()
-        .start_time("2021-11-10T00:00:00Z")
-        .end_time(datetime.utcnow() - timedelta(seconds=10))
-        .expansions("author_id,attachments.poll_ids")
-    )
-    for idx in range(2):
-        result = nanotag.search(
-            "#NaNoWriMo",
-            max_results=10,
-            page_token=nanotag.next_token,
-        )
-        for tweet_text in result.data:
-            print(tweet_text.text)
-
-    print(nanotag.limit_remaining)
-    print(nanotag.limit_reset)

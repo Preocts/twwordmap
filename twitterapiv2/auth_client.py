@@ -74,14 +74,3 @@ class AuthClient(Http):
 
         os.environ["TW_BEARER_TOKEN"] = result.get("access_token", "")
         self.log.debug("Bearer token loaded to 'TW_BEARER_TOKEN'")
-
-
-if __name__ == "__main__":
-    from secretbox import SecretBox
-
-    SecretBox(auto_load=True)
-    logging.basicConfig(level="DEBUG")
-    client = AuthClient()
-
-    client.set_bearer_token()
-    print(os.getenv("TW_BEARER_TOKEN", "NONE"))
