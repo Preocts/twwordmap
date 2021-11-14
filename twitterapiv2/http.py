@@ -36,7 +36,7 @@ class Http:
 
     @property
     def limit_reset(self) -> datetime:
-        """Datetime of next limit reset in native time"""
+        """Datetime of next limit reset as UTC unaware datetime"""
         if self._last_response is None:
             return datetime.now()
         else:
