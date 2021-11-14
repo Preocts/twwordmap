@@ -130,11 +130,15 @@ class SearchClient(Http):
         self._fields["user_fields"] = user_fields if user_fields else None
         return self._new_client()
 
+    def max_results(self, max_results: Optional[int]) -> "SearchClient":
+        """A number between 10 and 100. By default, set at 10 results"""
+        self._fields["max_results"] = max_results if max_results else None
+        return self._new_client()
+
     def search(
         self,
         query: str,
         *,
-        max_results: Optional[int] = None,
         page_token: Optional[str] = None,
     ) -> SearchResponse:
         """
@@ -145,7 +149,6 @@ class SearchClient(Http):
         safely referenced prior to, and after, searches.
         """
         self._fields["query"] = query
-        self._fields["max_results"] = max_results
         self._fields["next_token"] = page_token
         result = SearchResponse.build_obj(
             super().get(self.URL, self.fields, self._headers())
