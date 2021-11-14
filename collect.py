@@ -45,7 +45,10 @@ def run_search(
             log.critical("Invalid response from HTTP: '%s'", err)
             break
         except ThrottledError:
-            throttle_handler(client)
+            log.info("Rate limit reached, resets at: %s UTC", client.limit_reset)
+            while datetime.utcnow() <= client.limit_reset:
+                log.info("Waiting on limit reset, currently: %s UTC", datetime.utcnow())
+                sleep(SLEEP_TIME)
             continue
 
         total += len(response.data)
@@ -58,17 +61,6 @@ def run_search(
         if not client.next_token:
             log.info("No additional pages to poll.")
             break
-
-        if client.limit_remaining == 0:
-            throttle_handler(client)
-
-
-def throttle_handler(client: SearchClient) -> None:
-    """Loops and holds for limit remaining to reset"""
-    log.info("Rate limit reached, resets at: %s UTC", client.limit_reset)
-    while datetime.utcnow() <= client.limit_reset:
-        log.info("Waiting for limit reset, currently: %s UTC...", datetime.utcnow())
-        sleep(SLEEP_TIME)
 
 
 def cli_args() -> Namespace:
