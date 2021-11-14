@@ -133,7 +133,7 @@ https://developer.twitter.com/en/docs/twitter-api/tweets/search/api-reference/ge
 
 Use example:
 ```py
-from datetime import timedelta
+from datetime import datetime
 from twitterapiv2.auth_client import AuthClient
 from secretbox import SecretBox
 
@@ -141,23 +141,29 @@ SecretBox(auto_load=True)
 
 auth = AuthClient()
 auth.set_bearer_token()
+search_string = "#100DaysOfCode -is:retweet"
 
 mysearch = (
     SearchClient()
     .start_time("2021-11-10T00:00:00Z")
-    .end_time(datetime.utcnow() - timedelta(seconds=10))
     .expansions("author_id,attachments.poll_ids")
+    .max_results(100)
 )
 while True:
-    result = mysearch.search(
-        "#100DaysOfCode",
-        page_token=mysearch.next_token,
-    )
-    for tweet_text in result.data:
-        print(tweet_text.text)
-    if not mysearch.next_token:
+    log.info("Retrieving Tweets...")
+    try:
+        response = client.search(search_string, page_token=client.next_token)
+    except InvalidResponseError as err:
+        print(f"Invalid response from HTTP: '{err}'")
         break
-
-print(mysearch.limit_remaining)
-print(mysearch.limit_reset)
+    except ThrottledError:
+        print(f"Rate limit reached, resets at: {client.limit_reset} UTC")
+        while datetime.utcnow() <= client.limit_reset:
+            print(f"Waiting for limit reset, currently: {datetime.utcnow()} UTC...")
+            sleep(SLEEP_TIME)
+        continue
+    # Do something with pulled data in response
+    if not client.next_token:
+        print("No additional pages to poll.")
+        break
 ```
