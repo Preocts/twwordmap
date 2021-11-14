@@ -65,17 +65,9 @@ def run_search(
 
 def throttle_handler(client: SearchClient) -> None:
     """Loops and holds for limit remaining to reset"""
-    initial = True
+    log.info("Rate limit reached, resets at: %s UTC", client.limit_reset)
     while datetime.utcnow() <= client.limit_reset:
-        if initial:
-            log.info(
-                "Rate limit reached, restarting at: %s UTC - currently: %s UTC",
-                client.limit_reset,
-                datetime.utcnow(),
-            )
-            initial = False
-        else:
-            log.info("Still waiting, currently: %s UTC...", datetime.utcnow())
+        log.info("Waiting for limit reset, currently: %s UTC...", datetime.utcnow())
         sleep(SLEEP_TIME)
 
 
