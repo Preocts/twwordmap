@@ -48,7 +48,6 @@ mysearch = (
 while True:
     result = mysearch.search(
         "#100DaysOfCode",
-        max_results=10,
         page_token=mysearch.next_token,
     )
     for tweet_text in result.data:
