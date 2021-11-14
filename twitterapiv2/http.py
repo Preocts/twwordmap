@@ -7,11 +7,9 @@ from typing import Optional
 
 import urllib3
 
+from twitterapiv2.exceptions import InvalidResponseError
+from twitterapiv2.exceptions import ThrottledError
 from twitterapiv2.model.responseheader import ResponseHeader
-
-
-class InvalidResponseError(Exception):
-    ...
 
 
 class Http:
@@ -19,7 +17,8 @@ class Http:
     Provides HTTPS connection pool and REST methods
 
     Raises:
-        InvalidResponseError - Raised on all failed status codes
+        ThrottledError - Raise on 429 Throttle error
+        InvalidResponseError - Raised on all other failed status codes
     """
 
     def __init__(self, num_pools: int = 10) -> None:
@@ -53,7 +52,7 @@ class Http:
                 backoff_factor=2,
                 raise_on_status=False,
                 raise_on_redirect=True,
-                status_forcelist=[429, 500, 502, 503, 504],
+                status_forcelist=[500, 502, 503, 504],
                 allowed_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
             ),
         )
@@ -75,9 +74,7 @@ class Http:
         """Override for specific implementations"""
         resp = self.http.request("GET", url, fields, headers)
         self._last_response = ResponseHeader.build_from(resp)
-        if resp.status not in range(200, 300):
-            self.log.error("Failed: %s", resp.data)
-            raise InvalidResponseError(f"{resp.status} on GET to {url}")
+        self.__raise_on_response(resp, url)
         return self._data2dict(resp.data)
 
     def post(self) -> None:
@@ -95,3 +92,11 @@ class Http:
     def delete(self) -> None:
         """Override for specific implementations"""
         raise NotImplementedError
+
+    def __raise_on_response(self, resp: Any, url: str) -> None:
+        """Custom handling of invalid status codes"""
+        if resp.status == 429:
+            raise ThrottledError(f"Throttled until {self.limit_reset}")
+        if resp.status not in range(200, 300):
+            self.log.error("Failed: %s", resp.data)
+            raise InvalidResponseError(f"{resp.status} response from {url}")
