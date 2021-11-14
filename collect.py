@@ -78,12 +78,22 @@ def cli_args() -> Namespace:
         description="#100DaysofCode Project - 2021 rewrite"
     )
     cmArgs.add_argument(
-        "search_term", type=str, help="String of what to search Twitter for"
+        "search_term",
+        type=str,
+        help=(
+            "Define the search query, up to 512 characters. Be specific! "
+            "Highly recommended to use `-is:retweet` to drastically reduce "
+            "the number of results. Applications have a 500,000 **monthly** "
+            "limit (per tweet, not request!)."
+        ),
     )
     cmArgs.add_argument(
         "start_date",
         type=str,
-        help="YYYY-MM-DD Date of when to start search, 7 days max.",
+        help=(
+            "YYYY-MM-DD Date of when to start search, 7 days max. Tweets are "
+            "pulled from current time backward to this date."
+        ),
     )
     cmArgs.add_argument(
         "--name",
