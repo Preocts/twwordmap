@@ -16,7 +16,13 @@ class SearchClient(Http):
     URL = "https://api.twitter.com/2/tweets/search/recent"
 
     def __init__(self, num_pools: int = 10) -> None:
-        """Create Search Recent client. Use methods to build query a .search() to run"""
+        """
+        Create Search Recent client. Use methods to build query a .search() to run
+
+        The environment variable "TW_BEARER_TOKEN" is required; set with the
+        applicaton bearer token. This can be set manually or loaded with the
+        use of AuthClient.set_bearer_token().
+        """
         super().__init__(num_pools=num_pools)
         self._fields: Dict[str, Any] = {}
         self._next_token: Optional[str] = None
@@ -45,7 +51,11 @@ class SearchClient(Http):
         return self._new_client()
 
     def end_time(self, end: Union[str, datetime, None]) -> "SearchClient":
-        """Define end_time of query. YYYY-MM-DDTHH:mm:ssZ (ISO 8601/RFC 3339)"""
+        """
+        Define end_time of query. YYYY-MM-DDTHH:mm:ssZ (ISO 8601/RFC 3339)
+
+        NOTE: The end_time cannot be less than 10 seconds from "now"
+        """
         if isinstance(end, datetime):
             end = self._to_ISO8601(end)
         self._fields["end_time"] = end if end else None
