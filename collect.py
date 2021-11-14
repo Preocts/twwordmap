@@ -2,81 +2,86 @@
 Collect up to seven days of tweets from a given search phrase
 """
 import argparse
-import json
 import logging
 import re
+from argparse import Namespace
 from datetime import datetime
 from time import sleep
-from typing import Dict
-from typing import Tuple
 
 from secretbox import SecretBox
 
+from datastore import DataStore
 from twitterapiv2.auth_client import AuthClient
-from twitterapiv2.http import InvalidResponseError
+from twitterapiv2.exceptions import InvalidResponseError
+from twitterapiv2.exceptions import ThrottledError
 from twitterapiv2.search_client import SearchClient
 
-
+# Number of seconds to sleep while between throttle checks
+SLEEP_TIME = 60
 log = logging.getLogger("collect")
 
 
-def run_search(search_string: str, start_at: datetime) -> Dict[str, str]:
-    """Facilates search, return dict of tweets by tweet_id"""
+def run_search(
+    search_string: str,
+    start_at: datetime,
+    dbclient: DataStore,
+) -> None:
+    """Facilates search, saving tweets into data store"""
     # Load client secrets and bearer token to environ
     secrets = SecretBox(auto_load=True)
     if not secrets.get("TW_BEARER_TOKEN"):
         AuthClient().set_bearer_token()
 
-    client = SearchClient().start_time(start_at).max_results(100)
-    tweets: Dict[str, str] = {}
+    total = 0
+    client = (
+        SearchClient().start_time(start_at).max_results(100).tweet_fields("created_at")
+    )
 
     while True:
         log.info("Retrieving Tweets...")
         try:
             response = client.search(search_string, page_token=client.next_token)
         except InvalidResponseError as err:
-            if "429" not in str(err):
-                raise Exception() from err
-            retry_handler(client)
+            log.critical("Invalid response from HTTP: '%s'", err)
+            break
+        except ThrottledError:
+            throttle_handler(client)
             continue
 
-        tweets.update({tweet.id: tweet.text for tweet in response.data})
-
-        log.info("Pulled %s tweets, %s total", len(response.data), len(tweets))
+        total += len(response.data)
+        log.info("Pulled %s tweets, %s total", len(response.data), total)
         log.debug("Requests remaining: %s", client.limit_remaining)
         log.debug("ID start: %s - end: %s", response.data[0].id, response.data[-1].id)
+
+        dbclient.insert_rows(response.data)
 
         if not client.next_token:
             log.info("No additional pages to poll.")
             break
 
         if client.limit_remaining == 0:
-            retry_handler(client)
-
-    return tweets
+            throttle_handler(client)
 
 
-def retry_handler(client: SearchClient) -> None:
+def throttle_handler(client: SearchClient) -> None:
     """Loops and holds for limit remaining to reset"""
+    initial = True
     while datetime.utcnow() <= client.limit_reset:
-        log.info(
-            "Rate limit reached, restarting at: %s UTC - currently %s (next check in 30 seconds)",  # noqa
-            client.limit_reset,
-            datetime.utcnow(),
-        )
-        sleep(30)
+        if initial:
+            log.info(
+                "Rate limit reached, restarting at: %s UTC - currently: %s UTC",
+                client.limit_reset,
+                datetime.utcnow(),
+            )
+            initial = False
+        else:
+            log.info("Still waiting, currently: %s UTC...", datetime.utcnow())
+        sleep(SLEEP_TIME)
 
 
-def save_tweets(tweets: Dict[str, str]) -> None:
-    """Save tweets to filename `tweetsYYYY.MM.DD.HH.MM.SS"""
-    filename = datetime.utcnow().strftime("tweets%Y.%m.%d.%H.%M.%S")
-    with open(filename, "w", encoding="utf-8") as outfile:
-        json.dump(tweets, outfile, indent=4)
-    log.info("Saved %s tweets to '%s'", len(tweets), filename)
-
-
-def cli_args() -> Tuple[str, str, str]:
+def cli_args() -> Namespace:
     """Control command line interface"""
+    filename = datetime.utcnow().strftime("tweets%Y.%m.%d.%H.%M.%S.db")
     cmArgs = argparse.ArgumentParser(
         description="#100DaysofCode Project - 2021 rewrite"
     )
@@ -89,15 +94,20 @@ def cli_args() -> Tuple[str, str, str]:
         help="YYYY-MM-DD Date of when to start search, 7 days max.",
     )
     cmArgs.add_argument(
+        "--name",
+        type=str,
+        metavar=filename,
+        default=filename,
+        help="sqlite3 file to store results in",
+    )
+    cmArgs.add_argument(
         "--log",
         type=str,
         default="info",
         choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Logging level. Default: info",
+        help="Logging level. Default: INFO",
     )
-    args = cmArgs.parse_args()
-
-    return args.search_term, args.start_date, args.log
+    return cmArgs.parse_args()
 
 
 def clean_search(search: str) -> str:
@@ -118,10 +128,13 @@ def clean_start_date(start_date: str) -> datetime:
 
 
 if __name__ == "__main__":
-    search, start_date, log_level = cli_args()
-    logging.basicConfig(level=log_level.upper())
-    search = clean_search(search)
-    start_at = clean_start_date(start_date)
-    tweets = run_search(search, start_at)
-    save_tweets(tweets)
+    args = cli_args()
+    logging.basicConfig(level=args.log.upper())
+    datastore = DataStore(args.name)
+    search = clean_search(args.search_term)
+    start_at = clean_start_date(args.start_date)
+
+    with datastore.connection() as dbclient:
+        run_search(search, start_at, dbclient)
+
     raise SystemExit(0)
