@@ -31,17 +31,18 @@ class Http:
     def limit_remaining(self) -> int:
         """Number of calls remaining before next limit reset"""
         if self._last_response is None:
-            return 1
+            return -1
         else:
             return int(self._last_response.x_rate_limit_remaining)
 
     @property
     def limit_reset(self) -> datetime:
-        """Datetime of next limit reset"""
+        """Datetime of next limit reset in native time"""
         if self._last_response is None:
             return datetime.now()
         else:
-            return datetime.fromtimestamp(int(self._last_response.x_rate_limit_reset))
+            ts = int(self._last_response.x_rate_limit_reset)
+            return datetime.utcfromtimestamp(ts)
 
     def connection(self, num_pools: int = 10) -> urllib3.PoolManager:
         """Returns HTTP pool manager with retries and backoff"""
@@ -50,7 +51,7 @@ class Http:
             retries=urllib3.Retry(
                 total=3,
                 backoff_factor=2,
-                raise_on_status=True,
+                raise_on_status=False,
                 raise_on_redirect=True,
                 status_forcelist=[429, 500, 502, 503, 504],
                 allowed_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
