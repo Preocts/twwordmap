@@ -44,6 +44,17 @@ class DataStore:
         finally:
             cursor.close()
 
+    def get_text(self) -> List[List[str]]:
+        if self.db is None:
+            raise Exception("No database connection exists.")
+        cursor = self.db.cursor()
+        sql = "SELECT content FROM data"
+        try:
+            cursor.execute(sql)
+            return cursor.fetchall()
+        finally:
+            cursor.close()
+
     @contextmanager
     def connection(self) -> Generator["DataStore", None, None]:
         """Open/Create database and ensure proper close on exit"""
