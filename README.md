@@ -97,7 +97,29 @@ with mystore.connection() as dbclient:
 
 ### process.py (re-write)
 
-**work pending**
+Processes the tweets stored in the sqlite3 database that `collect.py` creates. Filters out words based on the below rules and outputs an html file with the same name as the input database.
+
+Filters:
+- No retweets
+- Removes unicode
+- Words must be greater than 1 character and less than 42
+- No html links
+- Starts with an ascii character (or #)
+- Ends with an ascii character
+- Not found in `skip_words.py`
+
+```
+usage: process.py [-h] [--cutoff CUTOFF] database_name
+
+#100DaysofCode Project - 2021 re-write
+
+positional arguments:
+  database_name    Sqlite3 database file to load.
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --cutoff CUTOFF  Lower percent (0-100) to remove from output. Default: 60
+```
 
 ---
 
